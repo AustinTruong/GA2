@@ -32,6 +32,7 @@ public class Scheduling extends FitnessFunction{
 	//  Assumes no more than 100 values in the data file
 	public static int[] testValue = new int[100];
 	public static int[][] preferences;
+	public static int[] preferenceweights = {10,0,1,2,3};
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
@@ -68,8 +69,9 @@ public class Scheduling extends FitnessFunction{
 	public void doRawFitness(Chromo X){
 
 		double difference = 0;
-		for (int j=0; j<Parameters.numGenes; j++){
-			difference = (double) Math.abs(X.getIntGeneValue(j) - testValue[j]);
+		for (int j=0; j<35; j++){
+			difference = preferenceweights[ 
+			     preferences[ (int) Math.abs(X.getIntGeneValue(j)) ][j] ];
 			X.rawFitness = X.rawFitness + difference;
 		}
 	}

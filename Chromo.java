@@ -33,10 +33,10 @@ public class Chromo
 		//  Set gene values to a random sequence of 1's and 0's
 		char pair;
 		chromo = "";
-		for (int i=0; i<Parameters.numGenes; i++){
-			for (int j=0; j<Parameters.geneSize; j++){
+		for (int i=0; i<5; i++){
+			for (int j=0; j<7; j++){
 				randnum = Search.r.nextDouble();
-				pair = (char) ((int) (randnum*Parameters.numGenes));
+				pair = (char) ((int) (randnum*7)+'0');
 
 				this.chromo = chromo + pair;
 			}
