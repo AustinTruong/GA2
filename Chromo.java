@@ -1,6 +1,8 @@
 /******************************************************************************
 *  A Teaching GA					  Developed by Hal Stringer & Annie Wu, UCF
 *  Version 2, January 18, 2004
+*  
+*  Modifications by Austin Truong
 *******************************************************************************/
 
 import java.io.*;
@@ -17,6 +19,7 @@ public class Chromo
 	public double rawFitness;
 	public double sclFitness;
 	public double proFitness;
+	public boolean valid;
 
 /*******************************************************************************
 *                            INSTANCE VARIABLES                                *
@@ -30,13 +33,13 @@ public class Chromo
 
 	public Chromo(){
 
-		//  Set gene values to a random sequence of 1's and 0's
+		//  Set gene values to string of random chars in range [0,35)
 		char pair;
 		chromo = "";
 		for (int i=0; i<5; i++){
 			for (int j=0; j<7; j++){
 				randnum = Search.r.nextDouble();
-				pair = (char) ((int) (randnum*7)+'0');
+				pair = (char) ((int) (randnum*35)+'0');
 
 				this.chromo = chromo + pair;
 			}
@@ -45,6 +48,7 @@ public class Chromo
 		this.rawFitness = -1;   //  Fitness not yet evaluated
 		this.sclFitness = -1;   //  Fitness not yet scaled
 		this.proFitness = -1;   //  Fitness not yet proportionalized
+		this.valid = false;		//  Not yet passed validation
 	}
 
 
@@ -64,19 +68,30 @@ public class Chromo
 	//  Get Integer Value of a Gene (Positive or Negative, 2's Compliment) ****
 
 	public int getIntGeneValue(int geneID){
-		String geneAlpha = "";
-		int geneValue;
-		char geneSign;
-		char geneBit;
-		geneValue = 0;
-		geneAlpha = getGeneAlpha(geneID);
-		for (int i=Parameters.geneSize-1; i>=1; i--){
-			geneBit = geneAlpha.charAt(i);
-			if (geneBit == '1') geneValue = geneValue + (int) Math.pow(2.0, Parameters.geneSize-i-1);
-		}
-		geneSign = geneAlpha.charAt(0);
-		if (geneSign == '1') geneValue = geneValue - (int)Math.pow(2.0, Parameters.geneSize-1);
-		return (geneValue);
+		char geneValue = chromo.charAt(geneID);
+        return (int) geneValue - '0';
+//		String geneAlpha = "";
+//		int geneValue;
+//		char geneSign;
+//		char geneBit;
+//		
+//		geneValue = 0;
+//		geneAlpha = getGeneAlpha(geneID);
+//		for (int i=Parameters.geneSize-1; i>=1; i--){
+//			geneBit = geneAlpha.charAt(i);
+//			geneValue = (int) (geneValue + geneBit * Math.pow(35.0, Parameters.geneSize-i-1));
+//		}
+////		geneValue += (int)geneAlpha - '0';
+//		return (geneValue);
+//		geneValue = 0;
+//		geneAlpha = getGeneAlpha(geneID);
+//		for (int i=Parameters.geneSize-1; i>=1; i--){
+//			geneBit = geneAlpha.charAt(i);
+//			if (geneBit == '1') geneValue = geneValue + (int) Math.pow(2.0, Parameters.geneSize-i-1);
+//		}
+//		geneSign = geneAlpha.charAt(0);
+//		if (geneSign == '1') geneValue = geneValue - (int)Math.pow(2.0, Parameters.geneSize-1);
+//		return (geneValue);
 	}
 
 	//  Get Integer Value of a Gene (Positive only) ****************************
@@ -105,14 +120,22 @@ public class Chromo
 
 		case 1:     //  Replace with new random number
 
-			for (int j=0; j<(Parameters.geneSize * Parameters.numGenes); j++){
+			int numNumbers = 35;
+			int numSize = 35;
+			for (int j=0; j<(numNumbers); j++){
+				
 				x = (int) this.chromo.charAt(j);
+				
 				randnum = Search.r.nextDouble();
-				int baseSize = Parameters.numGenes;
+				int baseSize = numSize;
+				// If wins roll to mutate
 				if (randnum < Parameters.mutationRate){
+					
+					// Randomize the number.
+					// Distance is not an issue here, so allow any number.
 					randnum = Search.r.nextDouble();
 					int mut = (int) randnum * baseSize;
-					x = (x + mut) % baseSize;
+					x = (x-'0' + mut) % baseSize + '0';
 				}
 				mutChromo = mutChromo + (char)x;
 			}
@@ -122,6 +145,17 @@ public class Chromo
 		default:
 			System.out.println("ERROR - No mutation method selected");
 		}
+	}
+	
+	/**
+	 * Reset internal fitness/valid variables
+	 */
+	public void reset(){
+		
+		this.rawFitness = -1;   //  Fitness not yet evaluated
+		this.sclFitness = -1;   //  Fitness not yet scaled
+		this.proFitness = -1;   //  Fitness not yet proportionalized
+		this.valid = false;
 	}
 
 /*******************************************************************************
@@ -211,12 +245,14 @@ public class Chromo
 		}
 
 		//  Set fitness values back to zero
-		child1.rawFitness = -1;   //  Fitness not yet evaluated
-		child1.sclFitness = -1;   //  Fitness not yet scaled
-		child1.proFitness = -1;   //  Fitness not yet proportionalized
-		child2.rawFitness = -1;   //  Fitness not yet evaluated
-		child2.sclFitness = -1;   //  Fitness not yet scaled
-		child2.proFitness = -1;   //  Fitness not yet proportionalized
+		child1.reset();
+		child2.reset();
+//		child1.rawFitness = -1;   //  Fitness not yet evaluated
+//		child1.sclFitness = -1;   //  Fitness not yet scaled
+//		child1.proFitness = -1;   //  Fitness not yet proportionalized
+//		child2.rawFitness = -1;   //  Fitness not yet evaluated
+//		child2.sclFitness = -1;   //  Fitness not yet scaled
+//		child2.proFitness = -1;   //  Fitness not yet proportionalized
 	}
 
 	//  Produce a new child from a single parent  ******************************
@@ -227,9 +263,10 @@ public class Chromo
 		child.chromo = parent.chromo;
 
 		//  Set fitness values back to zero
-		child.rawFitness = -1;   //  Fitness not yet evaluated
-		child.sclFitness = -1;   //  Fitness not yet scaled
-		child.proFitness = -1;   //  Fitness not yet proportionalized
+		child.reset();
+//		child.rawFitness = -1;   //  Fitness not yet evaluated
+//		child.sclFitness = -1;   //  Fitness not yet scaled
+//		child.proFitness = -1;   //  Fitness not yet proportionalized
 	}
 
 	//  Copy one chromosome to another  ***************************************
@@ -241,6 +278,7 @@ public class Chromo
 		targetA.rawFitness = sourceB.rawFitness;
 		targetA.sclFitness = sourceB.sclFitness;
 		targetA.proFitness = sourceB.proFitness;
+		targetA.valid = sourceB.valid;
 		return;
 	}
 
