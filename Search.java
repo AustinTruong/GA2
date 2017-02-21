@@ -347,7 +347,37 @@ public class Search {
 				}
 
 				//	Swap Children with Last Generation
-				for (int i=0; i<Parameters.popSize; i++){
+				// But first some elitism.
+				// Preserve valid solutions (up to 5)
+				int k = 0, c = 5;
+//				int[] indices = new int[Parameters.popSize];
+//				for (int i = 0; i < Parameters.popSize; i++){
+//					if( member[i].valid){ 
+//						// = i;
+//						int temp = i;
+//						// Insertion sort.
+//						for(int j = k; j >= 0; j--){
+//							if( j == 0 )
+//								indices[j] = temp;
+//							else if( member[temp].rawFitness > member[indices[j-1]].rawFitness ){
+//								indices[j] = indices[j-1];
+////								temp;
+//							}
+//							else{
+//								indices[j] = temp;
+//								break;
+//							}
+//						}
+//						k++;
+//					}
+//				}
+//				if( k > 5) k = 5;
+//				for (int i = 0; i < k; i++ )
+//				{
+//					Chromo.copyB2A(member[i], member[indices[i]]);
+//				}
+				
+				for (int i=k; i<Parameters.popSize; i++){
 					Chromo.copyB2A(member[i], child[i]);
 				}
 
