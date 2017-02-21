@@ -33,7 +33,7 @@ public class Scheduling extends FitnessFunction{
 	public static int[] testValue = new int[100];
 	public static final int[] preferenceweights = {-500,200,100,50,10}; // Change these to affect preference fitness
 	public static final double contigWeight = 10;
-	public static final double missWeight = -50;
+	public static final double missWeight = -500;
 	public static int[][] preferences;
 	public static String[] names = new String[7];
 
@@ -55,7 +55,7 @@ public class Scheduling extends FitnessFunction{
 		Scanner scanner = new Scanner(new File(Parameters.dataInputFileName));
 		preferences = new int[7][35];
 		for( int i = 0; i < 7; i++){
-			scanner.nextInt();
+			scanner.next();
 			for(int j = 0; j < 35; j++){
 				preferences[i][j] = scanner.nextInt();
 			}
@@ -136,7 +136,7 @@ public class Scheduling extends FitnessFunction{
 		for (int j=0; j<hitArray.length; j++){
 			if( hitArray[j] == 0 ){
 				X.valid = false;
-				missPenalty -= 1;
+				missPenalty += 1;
 			}
 		}
 			
