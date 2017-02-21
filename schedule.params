@@ -7,7 +7,7 @@ Population Size              :200
 Selection Method (1)         :2
 Fitness Scaling Type (2)     :0
 Crossover Type (3)           :1
-Crossover Rate (4)           :1.0
+Crossover Rate (4)           :0.25
 Mutation Type (5)            :1
 Mutation Rate (6)            :0.005
 Random Number Seed           :75982

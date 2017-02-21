@@ -36,14 +36,29 @@ public class Chromo
 		//  Set gene values to string of random chars in range [0,35)
 		char pair;
 		chromo = "";
-		for (int i=0; i<5; i++){
-			for (int j=0; j<7; j++){
-				randnum = Search.r.nextDouble();
-				pair = (char) ((int) (randnum*35)+'0');
-
-				this.chromo = chromo + pair;
-			}
+		char[] list = new char[35];
+		for(int i = 0; i < 35; i++){
+			list[i] = (char) (i +'0');
 		}
+		int max = 34;
+		char temp = 0;
+		// Fisher–Yates shuffle
+		for( max = 34; max > 0; max--){
+			temp = list[max];
+			int j = Search.r.nextInt(max+1);
+			list[max] = list[j];
+			list[j] = temp;
+			
+		}
+		this.chromo = new String(list);
+//		for (int i=0; i<5; i++){
+//			for (int j=0; j<7; j++){
+//				randnum = Search.r.nextDouble();
+//				pair = (char) ((int) (randnum*35)+'0');
+//
+//				this.chromo = chromo + pair;
+//			}
+//		}
 
 		this.rawFitness = -1;   //  Fitness not yet evaluated
 		this.sclFitness = -1;   //  Fitness not yet scaled
@@ -119,29 +134,45 @@ public class Chromo
 		switch (Parameters.mutationType){
 
 		case 1:     //  Replace with new random number
-
-			int numNumbers = 35;
-			int numSize = 35;
-			for (int j=0; j<(numNumbers); j++){
-				
-				x = (int) this.chromo.charAt(j);
-				
+			// Random swapping
+			// make it so chance to cause change is comparable to integer-wise mutation
+			char[] word = this.chromo.toCharArray();
+			for( int k = 0; k < 35; k++){
 				randnum = Search.r.nextDouble();
-				int baseSize = numSize;
-				// If wins roll to mutate
-				if (randnum < Parameters.mutationRate){
-					
-					// Randomize the number.
-					// Distance is not an issue here, so allow any number.
-					randnum = Search.r.nextDouble();
-					int mut = (int) randnum * baseSize;
-					x = (x-'0' + mut) % baseSize + '0';
-				}
-				mutChromo = mutChromo + (char)x;
+				if (randnum > Parameters.mutationRate)
+					continue;
+				// If some condition is met
+				int i = Search.r.nextInt(35);
+				int j = Search.r.nextInt(35);
+				// Swap two random positions (could be same)
+				char temp = word[i];
+				word[i] = word[j];
+				word[j] = temp;			
 			}
-			this.chromo = mutChromo;
+			this.chromo = new String(word);
+//			int numNumbers = 35;
+//			int numSize = 35;
+//			for (int j=0; j<(numNumbers); j++){
+//				
+//				x = (int) this.chromo.charAt(j);
+//				
+//				randnum = Search.r.nextDouble();
+//				int baseSize = numSize;
+//				// If wins roll to mutate
+//				if (randnum < Parameters.mutationRate){
+//					
+//					// Randomize the number.
+//					// Distance is not an issue here, so allow any number.
+//					randnum = Search.r.nextDouble();
+//					int mut = (int) randnum * baseSize;
+//					x = (x-'0' + mut) % baseSize + '0';
+//				}
+//				mutChromo = mutChromo + (char)x;
+//			}
+//			this.chromo = mutChromo;
 			break;
-
+			
+		//case 3: 
 		default:
 			System.out.println("ERROR - No mutation method selected");
 		}
@@ -230,10 +261,35 @@ public class Chromo
 
 			//  Select crossover point
 			xoverPoint1 = 1 + (int)(Search.r.nextDouble() * (Parameters.numGenes * Parameters.geneSize-1));
-
+			// Following based on description of order crossover operator (OX1)
+			
+			// Set first half equal to parent 1's half (by copying entire thing)
+			char[] word1 = parent1.chromo.toCharArray();
+			char[] word2 = parent2.chromo.toCharArray();
+			
+			// Set second half to ordered remainder in second half
+			for (int i = xoverPoint1, k = 0; i < 35; i++ )
+			{
+				// Search for word2[k] in word1
+				// increment k if it is found
+				boolean unique = true;
+				do{
+					unique = true;
+					for(int j = 0; j < xoverPoint1; j++)
+					{
+						if(word1[j] == word2[k]){
+							k++;
+							unique = false;
+							break;
+						}
+					}
+				} while(unique == false);
+				word1[i] = word2[k];
+			}
+			
 			//  Create child chromosome from parental material
-			child1.chromo = parent1.chromo.substring(0,xoverPoint1) + parent2.chromo.substring(xoverPoint1);
-			child2.chromo = parent2.chromo.substring(0,xoverPoint1) + parent1.chromo.substring(xoverPoint1);
+			//child1.chromo = parent1.chromo.substring(0,xoverPoint1) + parent2.chromo.substring(xoverPoint1);
+			//child2.chromo = parent2.chromo.substring(0,xoverPoint1) + parent1.chromo.substring(xoverPoint1);
 			break;
 
 		case 2:     //  Two Point Crossover

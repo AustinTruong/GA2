@@ -33,7 +33,7 @@ public class Scheduling extends FitnessFunction{
 	public static int[] testValue = new int[100];
 	public static final int[] preferenceweights = {-500,200,100,50,10}; // Change these to affect preference fitness
 	public static final double contigWeight = 10;
-	public static final double missWeight = -500;
+	public static final double missWeight = -1000000000;
 	public static int[][] preferences;
 	public static String[] names = new String[7];
 
