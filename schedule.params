@@ -2,7 +2,7 @@ Experiment ID                :scheduling
 Problem Type                 :SC
 Data Input File Name         :inputfile.txt
 Number of Runs               :50
-Generations per Run          :100
+Generations per Run          :1000
 Population Size              :100
 Selection Method (1)         :2
 Fitness Scaling Type (2)     :0

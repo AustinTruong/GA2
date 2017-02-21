@@ -33,7 +33,7 @@ public class Scheduling extends FitnessFunction{
 	public static int[] testValue = new int[100];
 	public static final int[] preferenceweights = {-500,200,100,50,10}; // Change these to affect preference fitness
 	public static final double contigWeight = 10;
-	public static final double missWeight = -1;
+	public static final double missWeight = -50;
 	public static int[][] preferences;
 	public static String[] names = new String[7];
 
@@ -135,13 +135,14 @@ public class Scheduling extends FitnessFunction{
 		// Check how many shifts have been filled
 		for (int j=0; j<hitArray.length; j++){
 			if( hitArray[j] == 0 ){
+				X.valid = false;
 				missPenalty -= 1;
 			}
 		}
 			
 			
 		X.rawFitness = 1*prefFitness+contigWeight*contigFitness+missWeight*missPenalty;
-		if(X.valid) X.rawFitness += 1000;
+		if(X.valid) X.rawFitness += 10000;
 		return;
 		
 		//System.out.println("Fitness "+ Double.toString(X.rawFitness));
