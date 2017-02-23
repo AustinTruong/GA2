@@ -32,10 +32,12 @@ public class Scheduling extends FitnessFunction{
 	//  Assumes no more than 100 values in the data file
 	public static int[] testValue = new int[100];
 	public static final int[] preferenceweights = {-500,200,100,50,10}; // Change these to affect preference fitness
-	public static final double contigWeight = 20;
+	public static final double contigWeight = 100;
 	public static final double missWeight = -1000000000;
 	public static int[][] preferences;
 	public static String[] names = new String[7];
+	
+	
 
 /*******************************************************************************
 *                              CONSTRUCTORS                                    *
@@ -78,6 +80,14 @@ public class Scheduling extends FitnessFunction{
 		int[] sorted;
 		int[] hitArray = new int[35];
 		
+		// Lazy correction code:
+		int[] contigMap = new int[35];
+		for(int i = 0; i < 7; i++){
+			for( int j = 0; j < 5; j++){
+				contigMap[j*5+i] = i*7+j; // This is one-to-one, so would order matter? Not proving.
+			}
+		}
+		
 		double difference = 0;
 		for (int j=0; j<7; j++){
 			sorted = new int[5];
@@ -102,7 +112,12 @@ public class Scheduling extends FitnessFunction{
 				hitArray[val]+=1;
 				
 				// Maintain sortedness for contiguity checks
+
 				int tmp = val;
+				// !!! Note, contiguity check made with wrong assumptions !!!
+				// Correct code:
+				tmp = contigMap[tmp];
+				// End of correction
 				for (int l = 0; l < sorted.length; l++){
 					if(sorted[l] == 0){
 						sorted[l] = tmp;

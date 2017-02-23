@@ -1,6 +1,8 @@
 /******************************************************************************
 *  A Teaching GA					  Developed by Hal Stringer & Annie Wu, UCF
 *  Version 2, January 18, 2004
+*  
+*  Further modifications by Austin Truong
 *******************************************************************************/
 
 import java.io.*;
@@ -84,9 +86,12 @@ public class Search {
 
 	//	Set up Fitness Statistics matrix
 		fitnessStats = new double[2][Parameters.generations];
+		double[][][] fitnessStats2 = new double[2][Parameters.generations][Parameters.numRuns];
 		for (int i=0; i<Parameters.generations; i++){
 			fitnessStats[0][i] = 0;
 			fitnessStats[1][i] = 0;
+//			fitnessStats[2][i] = 0; // Average of generation
+//			fitnessStats[3][i] = 0; // Best of generation
 		}
 
 	//	Problem Specific Setup - For new new fitness function problems, create
@@ -117,7 +122,7 @@ public class Search {
 		bestOverAllChromo = new Chromo();
 
 		if (Parameters.minORmax.equals("max")){
-			defaultBest = 0;
+			defaultBest = -999999999999999999999.0;
 			defaultWorst = 999999999999999999999.0;
 		}
 		else{
@@ -200,6 +205,9 @@ public class Search {
 				// Accumulate fitness statistics
 				fitnessStats[0][G] += sumRawFitness / Parameters.popSize;
 				fitnessStats[1][G] += bestOfGenChromo.rawFitness;
+				
+				fitnessStats2[0][G][R-1] = sumRawFitness / Parameters.popSize;
+				fitnessStats2[1][G][R-1] = bestOfGenChromo.rawFitness;
 
 				averageRawFitness = sumRawFitness / Parameters.popSize;
 				stdevRawFitness = Math.sqrt(
@@ -387,6 +395,7 @@ public class Search {
 			Hwrite.right(bestOfRunG, 4, summaryOutput);
 
 			problem.doPrintGenes(bestOfRunChromo, summaryOutput);
+			summaryOutput.write(((bestOfRunChromo.valid)?"Valid":"Invalid")+'\n');
 
 			System.out.println(R + "\t" + "B" + "\t"+ (int)bestOfRunChromo.rawFitness);
 
@@ -395,13 +404,36 @@ public class Search {
 		Hwrite.left("B", 8, summaryOutput);
 
 		problem.doPrintGenes(bestOverAllChromo, summaryOutput);
-
+		summaryOutput.write(((bestOverAllChromo.valid)?"Valid":"Invalid")+'\n');
+		double averageMean = 0;
+		double bestMean = 0;
+		double[][] stdDevs = new double[2][Parameters.generations];
+		// Get per-generation stats
+		for( int i = 0; i < Parameters.generations; i++){
+			
+			double sumsq1 = 0;
+			double sumsq2 = 0;
+			// generation average average across runs
+			averageMean = fitnessStats[0][i]/Parameters.numRuns;
+			// generation best average across runs
+			bestMean = fitnessStats[1][i]/Parameters.numRuns;
+			for(int j = 0; j < Parameters.numRuns; j++){
+				sumsq1 += Math.pow(fitnessStats2[0][i][j] - averageMean,2);
+				sumsq2 += Math.pow(fitnessStats2[1][i][j] - bestMean,2);
+			}
+			stdDevs[0][i] = Math.sqrt(sumsq1/Parameters.numRuns);
+			stdDevs[1][i] = Math.sqrt(sumsq2/Parameters.numRuns);
+		}
+		
 		//	Output Fitness Statistics matrix
-		summaryOutput.write("Gen                 AvgFit              BestFit \n");
+		summaryOutput.write("Gen                 AvgFit              BestFit               AvgStdDev                 BestStdDev\n");
 		for (int i=0; i<Parameters.generations; i++){
 			Hwrite.left(i, 15, summaryOutput);
 			Hwrite.left(fitnessStats[0][i]/Parameters.numRuns, 20, 2, summaryOutput);
 			Hwrite.left(fitnessStats[1][i]/Parameters.numRuns, 20, 2, summaryOutput);
+			Hwrite.left(stdDevs[0][i], 20, 2, summaryOutput);
+			Hwrite.left(stdDevs[1][i], 20, 2, summaryOutput);
+			
 			summaryOutput.write("\n");
 		}
 

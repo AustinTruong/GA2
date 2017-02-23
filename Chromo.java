@@ -3,6 +3,15 @@
 *  Version 2, January 18, 2004
 *  
 *  Modifications by Austin Truong
+*  - Conversion to support Scheduling problem
+*  - Cardinality is 35
+*  - Each gene forced to be unique, all operators affect ordering instead
+*  - Crossover operator loosely based on OX1 from https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
+*  	- No citation given from there, I tried. Apparently it's common knowledge by the way other sites use it without citation.
+*   - Best I can come up with:
+*   Ahmed, Zakir H. "Genetic Algorithm for the Traveling Salesman Problem Using Sequential Constructive Crossover Operator." 
+*   International Journal of Biometric and Bioinformatics 3.6 (2010). Computer Science Journals. Web. 
+*  - Random swap mutation operator
 *******************************************************************************/
 
 import java.io.*;
@@ -33,7 +42,7 @@ public class Chromo
 
 	public Chromo(){
 
-		//  Set gene values to string of random chars in range [0,35)
+		//  Set gene values to string of random ordering of chars in range [0,35)
 		char pair;
 		chromo = "";
 		char[] list = new char[35];
@@ -42,7 +51,8 @@ public class Chromo
 		}
 		int max = 34;
 		char temp = 0;
-		// Fisher–Yates shuffle
+		// Durstenfeld-Fisher-Yates shuffle
+		// Results in randomly ordered list
 		for( max = 34; max > 0; max--){
 			temp = list[max];
 			int j = Search.r.nextInt(max+1);
@@ -51,6 +61,8 @@ public class Chromo
 			
 		}
 		this.chromo = new String(list);
+		
+//		// Deprecated. Generate random chars		
 //		for (int i=0; i<5; i++){
 //			for (int j=0; j<7; j++){
 //				randnum = Search.r.nextDouble();
@@ -217,6 +229,7 @@ public class Chromo
 			return(j);
 
 		case 2:     // Tournament Selection (pool size 2)
+			// Note: Hard coded for only 2 members for speed
 			double pk = 0.7;// Ratio for best to win
 			int i;
 			double r = Search.r.nextDouble();

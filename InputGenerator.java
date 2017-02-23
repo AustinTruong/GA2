@@ -1,4 +1,4 @@
-/*
+/**
  * InputGenerator.java
  * 
  * By: Austin Truong
